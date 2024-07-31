@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using trade.InfraModel.DataAccess;
+using trade.Logic.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<IUserServices, UserServices>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -26,8 +28,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication(); // Ensure this middleware is added before Authorization
+
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();
