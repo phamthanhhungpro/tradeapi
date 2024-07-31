@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 
 namespace trade.Logic.Services
 {
@@ -19,70 +20,79 @@ namespace trade.Logic.Services
     public class UserServices : IUserServices
     {
         private readonly AppDbContext _dbContext;
-        private readonly IConfiguration _configuration;
+        private readonly string _jwtKey;
+        private readonly string _jwtIssuer;
+        private readonly string _jwtAudience;
 
         public UserServices(AppDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
-            _configuration = configuration;
+            _jwtKey = configuration["Jwt:Key"];
+            _jwtIssuer = configuration["Jwt:Issuer"];
+            _jwtAudience = configuration["Jwt:Audience"];
         }
 
         public async Task<CudResponseDto> RegisterAsync(RegisterUserRequest request)
         {
-            // Check if user already exists
-            var existingUser = await _dbContext.Users
-                .SingleOrDefaultAsync(u => u.Email == request.Email);
-
+            var existingUser = await _dbContext.Users.SingleOrDefaultAsync(u => u.Email == request.Email);
             if (existingUser != null)
             {
                 return new CudResponseDto { Message = "User already exists", IsSucceeded = false };
             }
 
-            // Hash the password
-            string passWordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-            var user = new User
+            var hashedPassword = HashPassword(request.Password);
+            var newUser = new User
             {
                 Id = Guid.NewGuid(),
                 Email = request.Email,
-                PassWordHash = passWordHash,
+                PassWordHash = hashedPassword,
                 Role = request.Role
             };
 
-            // Save user to database
-            _dbContext.Users.Add(user);
+            _dbContext.Users.Add(newUser);
             await _dbContext.SaveChangesAsync();
 
-            return new CudResponseDto { Message = "User registered successfully", Id = user.Id, IsSucceeded = true };
+            return new CudResponseDto { Message = "User registered successfully", Id = newUser.Id };
         }
 
-        public async Task<string> LoginAsync(UserLoginRequest loginDto)
+        public async Task<string> LoginAsync(UserLoginRequest loginRequest)
         {
-            // Get user by email
-            var user = await _dbContext.Users
-                .SingleOrDefaultAsync(u => u.Email == loginDto.Email);
-
-            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PassWordHash))
+            var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Email == loginRequest.Email);
+            if (user == null || !VerifyPassword(loginRequest.Password, user.PassWordHash))
             {
                 return null;
             }
 
-            // Generate JWT token
+            var token = GenerateJwtToken(user);
+            return token;
+        }
+
+        private string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        private bool VerifyPassword(string enteredPassword, string storedHash)
+        {
+            return BCrypt.Net.BCrypt.Verify(enteredPassword, storedHash);
+        }
+
+        private string GenerateJwtToken(User user)
+        {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-            var issuer = _configuration["Jwt:Issuer"];
-            var audience = _configuration["Jwt:Audience"];
+            var key = Encoding.ASCII.GetBytes(_jwtKey);
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Role, user.Role.ToString()) // Include the user's role
+                    new Claim(ClaimTypes.Role, user.Role.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = issuer,
-                Audience = audience,
+                Issuer = _jwtIssuer,
+                Audience = _jwtAudience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
