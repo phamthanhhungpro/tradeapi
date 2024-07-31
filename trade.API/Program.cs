@@ -1,8 +1,29 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using trade.InfraModel.DataAccess;
 using trade.Logic.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add JWT authentication services
+var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
 // Add services to the container.
 builder.Services.AddScoped<IUserServices, UserServices>();

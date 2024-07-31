@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace trade.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
@@ -19,6 +21,7 @@ namespace trade.API.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
+        [Authorize(Roles = "Admin")] // Requires user to have the Admin role
         public IEnumerable<WeatherForecast> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
