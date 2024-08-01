@@ -7,6 +7,7 @@ using trade.Logic.Services;
 using FluentValidation.AspNetCore;
 using trade.API.Validation;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder
+            .WithOrigins("https://example.com") // Replace with your allowed origin
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
 // Add database context
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -58,6 +69,9 @@ app.UseHttpsRedirection();
 app.UseAuthentication(); // Ensure this middleware is added before Authorization
 
 app.UseAuthorization();
+
+// Apply the CORS policy
+app.UseCors("AllowSpecificOrigin");
 
 app.MapControllers();
 app.Run();
