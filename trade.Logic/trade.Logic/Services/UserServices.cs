@@ -47,7 +47,8 @@ namespace trade.Logic.Services
                 Id = Guid.NewGuid(),
                 Email = request.Email,
                 PassWordHash = hashedPassword,
-                Role = request.Role
+                Role = request.Role,
+                Name = request.Name
             };
 
             _dbContext.Users.Add(newUser);

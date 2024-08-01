@@ -61,7 +61,7 @@ public class UserController : ControllerBase
         }
         catch (Exception ex)
         {
-            return Unauthorized(new { message = ex.Message });
+            throw;
         }
     }
 }

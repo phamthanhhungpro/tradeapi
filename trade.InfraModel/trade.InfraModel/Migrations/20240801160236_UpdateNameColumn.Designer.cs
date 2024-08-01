@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using trade.InfraModel.DataAccess;
@@ -11,9 +12,11 @@ using trade.InfraModel.DataAccess;
 namespace trade.InfraModel.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240801160236_UpdateNameColumn")]
+    partial class UpdateNameColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,6 +65,18 @@ namespace trade.InfraModel.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("300430fe-acdc-4f61-ab6c-8a746a78aa6c"),
+                            CreatedAt = new DateTime(2024, 8, 1, 16, 2, 35, 189, DateTimeKind.Utc).AddTicks(9793),
+                            CreatedBy = new Guid("4bc50d5c-a97f-4f8a-a282-d63d3d878e03"),
+                            Email = "su@trade.vn",
+                            IsDeleted = false,
+                            PassWordHash = "123 123",
+                            Role = 1
+                        });
                 });
 #pragma warning restore 612, 618
         }
