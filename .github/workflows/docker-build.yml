@@ -27,7 +27,7 @@ jobs:
       with:
         context: .  # Ensure this is the correct path to your Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_REPONAME }}/tradepro:latest
+        tags: tineship/tradepro:latest
 
   deploy:
     runs-on: ubuntu-latest
