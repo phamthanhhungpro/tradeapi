@@ -1,25 +1,28 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
+# Base image for runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER app
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+# Build image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["trade.API.csproj", "."]
+
+# Copy and restore project dependencies
+COPY ["trade.API/trade.API.csproj", "trade.API/"]
 COPY ["trade.Logic/trade.Logic.csproj", "trade.Logic/"]
-RUN dotnet restore "./trade.API.csproj"
+RUN dotnet restore "trade.API/trade.API.csproj"
+
+# Copy remaining files and build
 COPY . .
-WORKDIR "/src/."
-RUN dotnet build "./trade.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/trade.API"
+RUN dotnet build "trade.API.csproj" -c Release -o /app/build
 
+# Publish the application
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./trade.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "trade.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
+# Final image
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
