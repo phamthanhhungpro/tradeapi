@@ -4,11 +4,14 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using trade.InfraModel.DataAccess;
 using trade.Logic.Services;
+using FluentValidation.AspNetCore;
+using trade.API.Validation;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add JWT authentication services
-var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -17,17 +20,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? string.Empty,
             ValidateAudience = true,
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidAudience = builder.Configuration["Jwt:Audience"] ?? string.Empty,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
     });
 
 // Add services to the container.
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserRequestValidator>();
+builder.Services.AddTransient<IGenericValidator, GenericValidator>();
 builder.Services.AddScoped<IUserServices, UserServices>();
-
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
