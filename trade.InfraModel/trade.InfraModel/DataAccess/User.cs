@@ -8,5 +8,6 @@ namespace trade.InfraModel.DataAccess
         public string PassWordHash { get; set; }
         public string Email { get; set; }
         public RoleEnum Role { get; set; }
+        public string Name { get; set; }
     }
 }
