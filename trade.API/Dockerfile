@@ -8,9 +8,11 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy and restore project dependencies
+# Copy project files and restore dependencies
 COPY ["trade.API/trade.API.csproj", "trade.API/"]
-COPY ["trade.Logic/trade.Logic.csproj", "trade.Logic/"]
+COPY ["trade.Logic/trade.Logic/trade.Logic.csproj", "trade.Logic/"]
+COPY ["trade.InfraModel/trade.InfraModel/trade.InfraModel.csproj", "trade.InfraModel/"]
+COPY ["trade.Shared/trade.Shared/trade.Shared.csproj", "trade.Shared/"]
 RUN dotnet restore "trade.API/trade.API.csproj"
 
 # Copy remaining files and build
