@@ -8,13 +8,14 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
+using trade.Logic.Dtos;
 
 namespace trade.Logic.Services
 {
     public interface IUserServices
     {
         Task<CudResponseDto> RegisterAsync(RegisterUserRequest request);
-        Task<string> LoginAsync(UserLoginRequest request);
+        Task<LoginResponseDto> LoginAsync(UserLoginRequest request);
     }
 
     public class UserServices : IUserServices
@@ -55,7 +56,7 @@ namespace trade.Logic.Services
             return new CudResponseDto { Message = "User registered successfully", Id = newUser.Id };
         }
 
-        public async Task<string> LoginAsync(UserLoginRequest loginRequest)
+        public async Task<LoginResponseDto> LoginAsync(UserLoginRequest loginRequest)
         {
             var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Email == loginRequest.Email);
             if (user == null || !VerifyPassword(loginRequest.Password, user.PassWordHash))
@@ -64,7 +65,11 @@ namespace trade.Logic.Services
             }
 
             var token = GenerateJwtToken(user);
-            return token;
+            return new LoginResponseDto
+            {
+                Token = token,
+                User = user
+            };
         }
 
         private string HashPassword(string password)

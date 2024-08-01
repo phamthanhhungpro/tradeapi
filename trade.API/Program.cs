@@ -43,9 +43,9 @@ builder.Services.AddSwaggerGen();
 // Add CORS services
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
+    options.AddPolicy("AllowAllOrigin",
         builder => builder
-            .WithOrigins("https://example.com") // Replace with your allowed origin
+            .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
@@ -63,15 +63,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+// Apply the CORS policy
+app.UseCors("AllowAllOrigin");
 
 app.UseHttpsRedirection();
 
 app.UseAuthentication(); // Ensure this middleware is added before Authorization
 
 app.UseAuthorization();
-
-// Apply the CORS policy
-app.UseCors("AllowSpecificOrigin");
 
 app.MapControllers();
 app.Run();
