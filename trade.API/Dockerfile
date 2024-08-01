@@ -12,7 +12,7 @@ WORKDIR /src
 COPY ["trade.API/trade.API.csproj", "trade.API/"]
 COPY ["trade.Logic/trade.Logic/trade.Logic.csproj", "trade.Logic/"]
 COPY ["trade.InfraModel/trade.InfraModel/trade.InfraModel.csproj", "trade.InfraModel/"]
-COPY ["trade.Shared/trade.Shared/trade.Shared.csproj", "trade.Shared/"]
+COPY ["trade.Shared/trade.Shared.csproj", "trade.Shared/"]
 RUN dotnet restore "trade.API/trade.API.csproj"
 
 # Copy remaining files and build
