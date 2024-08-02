@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace trade.Logic.Requests;
+﻿namespace trade.Logic.Dtos;
 public class UserInfo
 {
     public string Id { get; set; }
