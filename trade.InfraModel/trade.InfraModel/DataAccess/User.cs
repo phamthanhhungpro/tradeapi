@@ -9,5 +9,6 @@ namespace trade.InfraModel.DataAccess
         public string Email { get; set; }
         public RoleEnum Role { get; set; }
         public string Name { get; set; }
+        public ICollection<Token> Tokens { get; set; }
     }
 }

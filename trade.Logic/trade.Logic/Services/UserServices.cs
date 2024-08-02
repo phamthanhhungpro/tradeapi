@@ -16,6 +16,10 @@ namespace trade.Logic.Services
     {
         Task<CudResponseDto> RegisterAsync(RegisterUserRequest request);
         Task<LoginResponseDto> LoginAsync(UserLoginRequest request);
+        Task<UserInfo> GetUserInfoFromToken(string accessToken);
+        Task<CudResponseDto> ChangePasswordAsync(ChangePasswordRequest request);
+        Task<CudResponseDto> LogoutAsync(Guid userId);
+
     }
 
     public class UserServices : IUserServices
@@ -24,13 +28,15 @@ namespace trade.Logic.Services
         private readonly string _jwtKey;
         private readonly string _jwtIssuer;
         private readonly string _jwtAudience;
+        private readonly ITokenService _tokenService;
 
-        public UserServices(AppDbContext dbContext, IConfiguration configuration)
+        public UserServices(AppDbContext dbContext, IConfiguration configuration, ITokenService tokenService)
         {
             _dbContext = dbContext;
             _jwtKey = configuration["Jwt:Key"];
             _jwtIssuer = configuration["Jwt:Issuer"];
             _jwtAudience = configuration["Jwt:Audience"];
+            _tokenService = tokenService;
         }
 
         public async Task<CudResponseDto> RegisterAsync(RegisterUserRequest request)
@@ -66,6 +72,8 @@ namespace trade.Logic.Services
             }
 
             var token = GenerateJwtToken(user);
+            await _tokenService.AddToken(token, user.Id);
+
             return new LoginResponseDto
             {
                 Token = token,
@@ -105,6 +113,46 @@ namespace trade.Logic.Services
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        public async Task<UserInfo> GetUserInfoFromToken(string accessToken)
+        {
+            return await _dbContext.Tokens
+                          .Include(t => t.User).Select(t => new UserInfo
+                          {
+                              Id = t.User.Id.ToString(),
+                              Email = t.User.Email,
+                              Role = t.User.Role.ToString(),
+                              Name = t.User.Name,
+                              TokenString = t.Value,
+                              IsValid = t.IsValid
+                          }).FirstOrDefaultAsync(t => t.TokenString == accessToken && t.IsValid);
+        }
+
+        public async Task<CudResponseDto> ChangePasswordAsync(ChangePasswordRequest request)
+        {
+            var user = await _dbContext.Users.FindAsync(request.UserId);
+            if (user == null)
+            {
+                return new CudResponseDto { Message = "User not found" };
+            }
+
+            if (!VerifyPassword(request.CurrentPassword, user.PassWordHash))
+            {
+                return new CudResponseDto { Message = "Old password is incorrect" };
+            }
+
+            user.PassWordHash = HashPassword(request.NewPassword);
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+
+            return new CudResponseDto { Message = "Password changed successfully", Id = user.Id };
+        }
+
+        public async Task<CudResponseDto> LogoutAsync(Guid userId)
+        {
+            await _tokenService.DisableAllTokensForUser(userId);
+            return new CudResponseDto { Message = "Logged out successfully", Id = userId };
         }
     }
 }

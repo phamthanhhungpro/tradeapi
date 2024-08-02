@@ -8,6 +8,7 @@ namespace trade.InfraModel.DataAccess
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Token> Tokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,6 +20,15 @@ namespace trade.InfraModel.DataAccess
                 entity.Property(e => e.IsDeleted).HasDefaultValue(false);
                 entity.HasQueryFilter(e => !e.IsDeleted);
             });
+
+            modelBuilder.Entity<Token>(entity =>
+             {
+                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                 entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+                 entity.HasOne(t => t.User)
+                       .WithMany(u => u.Tokens)
+                       .HasForeignKey(t => t.UserId);
+             });
         }
     }
 }

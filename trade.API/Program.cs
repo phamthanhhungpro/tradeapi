@@ -33,6 +33,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserRequestValidator>();
 builder.Services.AddTransient<IGenericValidator, GenericValidator>();
 builder.Services.AddScoped<IUserServices, UserServices>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddControllers();
