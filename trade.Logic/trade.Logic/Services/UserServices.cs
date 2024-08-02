@@ -9,6 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using trade.Logic.Dtos;
+using trade.Shared.Dtos;
+using trade.Shared.Enum;
 
 namespace trade.Logic.Services
 {
@@ -20,6 +22,8 @@ namespace trade.Logic.Services
         Task<CudResponseDto> ChangePasswordAsync(ChangePasswordRequest request);
         Task<CudResponseDto> LogoutAsync(Guid userId);
 
+        Task<PagingResponse<UserDto>> GetPagingUser(PagingRequest request);
+        Task<CudResponseDto> DeleteUser(Guid id);
     }
 
     public class UserServices : IUserServices
@@ -113,6 +117,47 @@ namespace trade.Logic.Services
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
+        }
+
+        public async Task<PagingResponse<UserDto>> GetPagingUser(PagingRequest request)
+        {
+            var users = await _dbContext.Users
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip(request.PageSize * request.PageIndex)
+                .Take(request.PageSize)
+                .Select(u => new UserDto
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    Name = u.Name,
+                    Role = ((RoleEnum)u.Role).ToString()
+                })
+                .ToListAsync();
+
+            var totalRecords = await _dbContext.Users.CountAsync();
+
+            return new PagingResponse<UserDto>
+            {
+                Items = users,
+                Count = totalRecords
+            };
+        }
+
+        public async Task<CudResponseDto> DeleteUser(Guid id)
+        {
+            var user = await _dbContext.Users.FindAsync(id);
+            if (user == null)
+            {
+                return new CudResponseDto { Message = "User not found", IsSucceeded = false };
+            }
+
+            user.IsDeleted = true;
+            user.DeletedAt = DateTime.UtcNow;
+
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+
+            return new CudResponseDto { Message = "User deleted successfully", Id = user.Id };
         }
 
         public async Task<UserInfo> GetUserInfoFromToken(string accessToken)
