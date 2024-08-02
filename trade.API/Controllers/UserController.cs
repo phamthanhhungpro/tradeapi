@@ -3,6 +3,8 @@ using trade.Logic.Requests;
 using trade.Logic.Services;
 using FluentValidation.Results;
 using trade.API.Validation;
+using trade.Logic.Dtos;
+using trade.InfraModel.DataAccess;
 
 namespace trade.API.Controllers;
 
@@ -58,6 +60,26 @@ public class UserController : ControllerBase
             if (token == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
             return Ok(token);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("login-with-token")]
+    public async Task<IActionResult> LoginWithToken([FromBody] UserLoginWithTokenRequest request)
+    {
+        try
+        {
+            return Ok(new LoginResponseDto
+            {
+                User = new User
+                {
+                    Email = "su@trade.com",
+                    Name = "Super User",
+                }
+            });
         }
         catch (Exception ex)
         {
