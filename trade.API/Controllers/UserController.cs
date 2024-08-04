@@ -79,7 +79,7 @@ public class UserController : ControllerBase
         {
             var result = await _userService.GetUserInfoFromToken(request.AccessToken);
             if (result == null)
-                return BadRequest(new { message = "Invalid token" });
+                return Unauthorized(new { message = "Invalid token" });
 
             return Ok(result);
         }
@@ -105,7 +105,7 @@ public class UserController : ControllerBase
             if (result == null)
                 return BadRequest(new { message = "Password change failed" });
 
-            return Ok(result.Message);
+            return Ok(result);
         }
         catch (Exception ex)
         {

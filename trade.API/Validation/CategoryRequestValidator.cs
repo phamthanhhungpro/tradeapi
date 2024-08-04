@@ -5,7 +5,7 @@ public class CategoryRequestValidator : AbstractValidator<CategoryRequest>
 {
     public CategoryRequestValidator()
     {
-        RuleFor(category => category.CategoryName)
+        RuleFor(category => category.Name)
             .NotEmpty().WithMessage("Category name is required.");
     }
 }

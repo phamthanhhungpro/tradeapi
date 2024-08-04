@@ -2,6 +2,7 @@
 using trade.Logic.Request;
 using trade.InfraModel.DataAccess;
 using trade.Logic.DTOs;
+using trade.Shared.Dtos;
 
 namespace trade.Logic.Interfaces
 {
@@ -13,5 +14,7 @@ namespace trade.Logic.Interfaces
         Task<CudResponseDto> EditCategoryAsync(Guid id, CategoryRequest categoryRequest);
         Task<CudResponseDto> DeleteCategoryAsync(Guid id);
         Task<CategoryDto> GetCategoryByIdAsync(Guid id);
+
+        Task<PagingResponse<CategoryDto>> GetPagingCategoryAsync(PagingRequest pagingRequest);
     }
 }

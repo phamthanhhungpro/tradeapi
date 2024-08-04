@@ -91,7 +91,7 @@ builder.Services.AddCors(options =>
 
 // Add database context
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContextPool<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 var app = builder.Build();

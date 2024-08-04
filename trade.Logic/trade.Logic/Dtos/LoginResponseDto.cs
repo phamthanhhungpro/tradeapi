@@ -10,6 +10,6 @@ namespace trade.Logic.Dtos
     public class LoginResponseDto
     {
         public string Token { get; set; }
-        public User User { get; set; }
+        public UserDto User { get; set; }
     }
 }

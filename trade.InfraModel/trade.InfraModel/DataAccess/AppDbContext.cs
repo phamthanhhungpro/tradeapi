@@ -28,22 +28,29 @@ namespace trade.InfraModel.DataAccess
              {
                  entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                  entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+                 entity.HasQueryFilter(e => !e.IsDeleted);
                  entity.HasOne(t => t.User)
                        .WithMany(u => u.Tokens)
                        .HasForeignKey(t => t.UserId);
-             });
-            var socialMediaCategoryId = Guid.NewGuid();
-            var gamingCategoryId = Guid.NewGuid();
+            });
 
-            modelBuilder.Entity<Category>().HasData(
-               new Category { Id = socialMediaCategoryId, CategoryName = "Social Media", CreatedAt = DateTime.UtcNow },
-               new Category { Id = gamingCategoryId, CategoryName = "Gaming", CreatedAt = DateTime.UtcNow });
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+            });
 
-            // Seed data for Product
-            modelBuilder.Entity<Product>().HasData(
-                new Product { Id = Guid.NewGuid(), Name = "Facebook Account", CategoryId = socialMediaCategoryId, CreatedAt = DateTime.UtcNow },
-                new Product { Id = Guid.NewGuid(), Name = "TikTok Account", CategoryId = socialMediaCategoryId, CreatedAt = DateTime.UtcNow },
-                new Product { Id = Guid.NewGuid(), Name = "Garena Account", CategoryId = gamingCategoryId, CreatedAt = DateTime.UtcNow });
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+                entity.HasQueryFilter(e => !e.IsDeleted);
+                entity.HasOne(p => p.Category)
+                      .WithMany(c => c.Products)
+                      .HasForeignKey(p => p.CategoryId);
+            });
+
         }
     }
 }

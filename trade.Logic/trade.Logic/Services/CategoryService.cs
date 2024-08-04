@@ -4,6 +4,7 @@ using trade.Shared.Model.Dtos;
 using trade.Logic.DTOs;
 using trade.Logic.Interfaces;
 using trade.Logic.Request;
+using trade.Shared.Dtos;
 
 namespace trade.Logic.Services
 {
@@ -20,7 +21,7 @@ namespace trade.Logic.Services
         {
             var category = new Category()
             {
-                CategoryName = request.CategoryName,
+                CategoryName = request.Name,
                 CreatedAt = DateTime.UtcNow,
             };
             await _dbContext.Categories.AddAsync(category);
@@ -54,7 +55,7 @@ namespace trade.Logic.Services
             {
                 throw new KeyNotFoundException($"Category with ID {id} not found");
             }
-            item.CategoryName = categoryRequest.CategoryName;
+            item.CategoryName = categoryRequest.Name;
             item.UpdatedAt = DateTime.UtcNow;
             await _dbContext.SaveChangesAsync();
             return new CudResponseDto()
@@ -108,6 +109,28 @@ namespace trade.Logic.Services
                     Id = p.Id,
                     Name = p.Name,
                 }).ToList()
+            };
+        }
+
+        public async Task<PagingResponse<CategoryDto>> GetPagingCategoryAsync(PagingRequest pagingRequest)
+        {
+            var categories = await _dbContext.Categories
+                            .OrderByDescending(x => x.CreatedAt)
+                            .Skip(pagingRequest.PageSize * pagingRequest.PageIndex)
+                            .Take(pagingRequest.PageSize)
+                            .AsNoTracking()
+                            .Select(x => new CategoryDto()
+                            {
+                                Id = x.Id,
+                                Name = x.CategoryName
+                            }).ToListAsync();
+
+            var totalRecords = await _dbContext.Categories.CountAsync();
+
+            return new PagingResponse<CategoryDto>()
+            {
+                Items = categories,
+                Count = totalRecords,
             };
         }
     }

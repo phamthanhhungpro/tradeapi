@@ -15,7 +15,7 @@ namespace trade.API.Middlewares
 
         public async Task InvokeAsync(HttpContext context, AppDbContext _dbContext)
         {
-            if (context.Request.Path.StartsWithSegments("/api/v1/auth/login"))
+            if (context.Request.Path.StartsWithSegments("/api/User/login"))
             {
                 await _next(context);
                 return;
@@ -23,8 +23,9 @@ namespace trade.API.Middlewares
 
             var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
 
-            var blackListToken = await _dbContext.Tokens.FirstOrDefaultAsync(x => x.Value == token && !x.IsValid);
-            if (blackListToken != null)
+            var isBlackListToken = await _dbContext.Tokens.AnyAsync(x => x.Value == token && !x.IsValid);
+
+            if (isBlackListToken)
             {
                 context.Response.StatusCode = 401;
                 await context.Response.WriteAsync("Unauthorized request: Token is blacklisted");

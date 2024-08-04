@@ -3,6 +3,7 @@ using FluentValidation.Results;
 using trade.API.Validation;
 using trade.Logic.Interfaces;
 using trade.Logic.Request;
+using trade.Shared.Dtos;
 
 namespace trade.API.Controllers
 {
@@ -73,6 +74,20 @@ namespace trade.API.Controllers
                 return NotFound(new { message = "Category not found" });
 
             return Ok(result);
+        }
+
+        [HttpPost("paging")]
+        public async Task<IActionResult> Paging([FromBody] PagingRequest request)
+        {
+            try
+            {
+                var result = await _categoryService.GetPagingCategoryAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

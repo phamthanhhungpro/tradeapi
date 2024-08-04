@@ -81,7 +81,13 @@ namespace trade.Logic.Services
             return new LoginResponseDto
             {
                 Token = token,
-                User = user
+                User = new()
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Name = user.Name,
+                    Role = ((RoleEnum)user.Role).ToString()
+                }
             };
         }
 
@@ -179,24 +185,26 @@ namespace trade.Logic.Services
             var user = await _dbContext.Users.FindAsync(request.UserId);
             if (user == null)
             {
-                return new CudResponseDto { Message = "User not found" };
+                return new CudResponseDto { Message = "User not found", IsSucceeded = false };
             }
 
             if (!VerifyPassword(request.CurrentPassword, user.PassWordHash))
             {
-                return new CudResponseDto { Message = "Old password is incorrect" };
+                return new CudResponseDto { Message = "Old password is incorrect", IsSucceeded = false };
             }
 
             user.PassWordHash = HashPassword(request.NewPassword);
+
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
 
-            return new CudResponseDto { Message = "Password changed successfully", Id = user.Id };
+            await _tokenService.DisableAllTokensForUser(user.Id);
+
+            return new CudResponseDto { Message = "Password changed successfully", IsSucceeded = true, Id = user.Id };
         }
 
         public async Task<CudResponseDto> LogoutAsync(Guid userId)
         {
-            await _tokenService.DisableAllTokensForUser(userId);
             return new CudResponseDto { Message = "Logged out successfully", Id = userId };
         }
     }
