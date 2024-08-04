@@ -4,6 +4,7 @@ using trade.Logic.Services;
 using FluentValidation.Results;
 using trade.API.Validation;
 using Microsoft.AspNetCore.Authorization;
+using trade.Shared.Dtos;
 
 namespace trade.API.Controllers;
 [Authorize]
@@ -62,7 +63,7 @@ public class UserController : ControllerBase
             if (result == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
 
-            return Ok(result.Token);
+            return Ok(result);
         }
         catch (Exception ex)
         {
@@ -109,6 +110,34 @@ public class UserController : ControllerBase
         catch (Exception ex)
         {
             throw;
+        }
+    }
+
+    [HttpPost("paging")]
+    public async Task<IActionResult> Paging([FromBody] PagingRequest request)
+    {
+        try
+        {
+            var result = await _userService.GetPagingUser(request);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        try
+        {
+            var result = await _userService.DeleteUser(id);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 
