@@ -64,52 +64,12 @@ namespace trade.Logic.Services
             };
         }
 
-        public async Task<IEnumerable<CategoryDto>> FullListCategoryAsync()
-        {
-            return await _dbContext.Categories
-                .Where(x => !x.IsDeleted)
-                .Include(x => x.Products)
-                .AsNoTracking()
-                .Select(x => new CategoryDto()
-                {
-                    Id = x.Id,
-                    Name = x.CategoryName,
-                    products = x.Products.Select(p => new ProductDto
-                    {
-                        Id = p.Id,
-                        Name = p.Name,
-                    }).ToList()
-                }).ToListAsync();
-        }
-
 
         public async Task<IEnumerable<Category>> GetListCategoryAsync()
         {
             return await _dbContext.Categories
                 .Where(x => !x.IsDeleted)
                 .ToListAsync();
-        }
-
-        public async Task<CategoryDto> GetCategoryByIdAsync(Guid id)
-        {
-            var category = await _dbContext.Categories
-        .Include(x => x.Products)
-        .AsNoTracking()
-        .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
-
-            if (category == null)
-                return null;
-
-            return new CategoryDto()
-            {
-                Id = category.Id,
-                Name = category.CategoryName,
-                products = category.Products.Select(p => new ProductDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                }).ToList()
-            };
         }
 
         public async Task<PagingResponse<CategoryDto>> GetPagingCategoryAsync(PagingRequest pagingRequest)

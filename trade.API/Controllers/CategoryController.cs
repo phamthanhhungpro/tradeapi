@@ -27,15 +27,6 @@ namespace trade.API.Controllers
             return Ok(categories);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetCategoryById(Guid id)
-        {
-            var category = await _categoryService.GetCategoryByIdAsync(id);
-            if (category == null)
-                return NotFound(new { message = "Category not found" });
-
-            return Ok(category);
-        }
 
         [HttpPost]
         public async Task<IActionResult> AddCategory([FromBody] CategoryRequest request)
@@ -47,7 +38,7 @@ namespace trade.API.Controllers
             }
 
             var result = await _categoryService.AddCategoryAsync(request);
-            return CreatedAtAction(nameof(GetCategoryById), new { id = result.Id }, result);
+            return Ok(result);
         }
 
         [HttpPut("{id}")]

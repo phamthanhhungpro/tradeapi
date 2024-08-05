@@ -5,6 +5,6 @@ namespace trade.InfraModel.DataAccess
     public class Category : BaseEntity
     {
         public string CategoryName { get; set; }
-        public ICollection<Product> Products { get; set; }
+        public ICollection<Store> Stores { get; set; }
     }
 }

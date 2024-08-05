@@ -9,11 +9,9 @@ namespace trade.Logic.Interfaces
     public interface ICategoryService
     {
         Task<IEnumerable<Category>> GetListCategoryAsync();
-        Task<IEnumerable<CategoryDto>> FullListCategoryAsync();
         Task<CudResponseDto> AddCategoryAsync(CategoryRequest request);
         Task<CudResponseDto> EditCategoryAsync(Guid id, CategoryRequest categoryRequest);
         Task<CudResponseDto> DeleteCategoryAsync(Guid id);
-        Task<CategoryDto> GetCategoryByIdAsync(Guid id);
 
         Task<PagingResponse<CategoryDto>> GetPagingCategoryAsync(PagingRequest pagingRequest);
     }

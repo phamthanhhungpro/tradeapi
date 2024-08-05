@@ -158,4 +158,28 @@ public class UserController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateUserInfo(Guid id, [FromBody] UpdateUserInfoRequest request)
+    {
+        try
+        {
+            ValidationResult validationResult = await _genericValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+
+            var result = await _userService.UpdateUserInfo(id, request);
+
+            if (result == null)
+                return NotFound(new { message = "User not found" });
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
 }

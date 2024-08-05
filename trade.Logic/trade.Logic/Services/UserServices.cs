@@ -24,6 +24,8 @@ namespace trade.Logic.Services
 
         Task<PagingResponse<UserDto>> GetPagingUser(PagingRequest request);
         Task<CudResponseDto> DeleteUser(Guid id);
+
+        Task<CudResponseDto> UpdateUserInfo(Guid id, UpdateUserInfoRequest request);
     }
 
     public class UserServices : IUserServices
@@ -206,6 +208,23 @@ namespace trade.Logic.Services
         public async Task<CudResponseDto> LogoutAsync(Guid userId)
         {
             return new CudResponseDto { Message = "Logged out successfully", Id = userId };
+        }
+
+        public async Task<CudResponseDto> UpdateUserInfo(Guid id, UpdateUserInfoRequest request)
+        {
+            var user = await _dbContext.Users.FindAsync(id);
+            if (user == null)
+            {
+                return new CudResponseDto { Message = "User not found", IsSucceeded = false };
+            }
+
+            user.Name = request.Name;
+            user.Phone = request.Phone;
+
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+
+            return new CudResponseDto { Message = "User info updated successfully", Id = user.Id, IsSucceeded = true };
         }
     }
 }
