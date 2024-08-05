@@ -12,8 +12,8 @@ using trade.InfraModel.DataAccess;
 namespace trade.InfraModel.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240805081412_ProductTable")]
-    partial class ProductTable
+    [Migration("20240805091536_InitDb")]
+    partial class InitDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -99,7 +99,7 @@ namespace trade.InfraModel.Migrations
 
                     b.HasIndex("StoreId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("trade.InfraModel.DataAccess.Product", b =>
@@ -201,7 +201,7 @@ namespace trade.InfraModel.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Store");
+                    b.ToTable("Stores");
                 });
 
             modelBuilder.Entity("trade.InfraModel.DataAccess.Token", b =>
@@ -253,6 +253,12 @@ namespace trade.InfraModel.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BankAccountNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankName")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()

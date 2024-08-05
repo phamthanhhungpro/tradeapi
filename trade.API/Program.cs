@@ -37,7 +37,10 @@ builder.Services.AddTransient<IGenericValidator, GenericValidator>();
 builder.Services.AddScoped<IUserServices, UserServices>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IStoreService, StoreService>();
 //builder.Services.AddScoped<IProductService, ProductService>();
+
+
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
 builder.Services.AddControllers();

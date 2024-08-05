@@ -96,7 +96,7 @@ namespace trade.InfraModel.Migrations
 
                     b.HasIndex("StoreId");
 
-                    b.ToTable("Comment");
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("trade.InfraModel.DataAccess.Product", b =>
@@ -198,7 +198,7 @@ namespace trade.InfraModel.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Store");
+                    b.ToTable("Stores");
                 });
 
             modelBuilder.Entity("trade.InfraModel.DataAccess.Token", b =>
@@ -250,6 +250,12 @@ namespace trade.InfraModel.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("BankAccountNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("BankName")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()

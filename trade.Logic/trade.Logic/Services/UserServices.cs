@@ -26,6 +26,7 @@ namespace trade.Logic.Services
         Task<CudResponseDto> DeleteUser(Guid id);
 
         Task<CudResponseDto> UpdateUserInfo(Guid id, UpdateUserInfoRequest request);
+        Task<CudResponseDto> UpdateSellerAccount(UpdateSellerRequest request);
     }
 
     public class UserServices : IUserServices
@@ -225,6 +226,25 @@ namespace trade.Logic.Services
             await _dbContext.SaveChangesAsync();
 
             return new CudResponseDto { Message = "User info updated successfully", Id = user.Id, IsSucceeded = true };
+        }
+
+        public async Task<CudResponseDto> UpdateSellerAccount(UpdateSellerRequest request)
+        {
+            var user = await _dbContext.Users.FindAsync(request.UserId);
+            if (user == null)
+            {
+                return new CudResponseDto { Message = "User not found", IsSucceeded = false };
+            }
+
+            user.Role = RoleEnum.Seller;
+            //user.Address = request.Address;
+            //user.BankAccount = request.BankAccount;
+            //user.BankName = request.BankName;
+
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+
+            return new CudResponseDto { Message = "Seller account updated successfully", Id = user.Id, IsSucceeded = true };
         }
     }
 }
